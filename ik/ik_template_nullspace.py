@@ -84,6 +84,20 @@ def get_jacobian_pinv(J):
     ### YOUR CODE HERE ###
     return J_pinv
 
+def get_NullMat(J,Jpinv):
+    return np.eye(7) - Jpinv @ J
+def get_dq2(q , joint_limit_list): # joint_limits[ joint_names[i] ]
+    dq = np.zeros( (len(joint_limit_list),) )
+    for i in range( len(joint_limit_list) ):
+        expect_val_l = joint_limit_list[i][0]
+        expect_val_u = joint_limit_list[i][1]
+        if ( joint_limit_list[i][0] > joint_limit_list[i][1] ): # Invalid limit
+            expect_val_l = -math.pi
+            expect_val_u = math.pi
+        # print ( (expect_val_u-q[i]) / (q[i]-expect_val_l) )
+        dq[i] = math.log( (expect_val_u-q[i]+1e-7) / (q[i]-expect_val_l+1e-7)  )
+    return dq
+
 def tuck_arm(robot):
     joint_names = ['torso_lift_joint','l_shoulder_lift_joint','l_elbow_flex_joint',\
         'l_wrist_flex_joint','r_shoulder_lift_joint','r_elbow_flex_joint','r_wrist_flex_joint']
@@ -135,6 +149,9 @@ def main():
     error_eps = 1e-2
     alpha = 5e-2
     error_min = 999
+    # beta = 5e-2 # Failed 3,4
+    beta = 1e-2
+    joint_limits_list = [joint_limits[joint_names[i]] for i in range( len(joint_idx) )]
     while ( True ):
         x_cur = get_ee_transform(robot, joint_idx, q[0,:])[:3,3]
         dx = target - x_cur
@@ -145,7 +162,9 @@ def main():
             break
         J = get_translation_jacobian(robot, joint_idx)
         Jpinv = get_jacobian_pinv(J)
-        dq = Jpinv @ dx
+        # print( (Jpinv @ dx).shape , get_NullMat(J,Jpinv).shape, get_dq2(q[0,:],joint_limits_list).shape)
+        dq = Jpinv @ dx + beta * get_NullMat(J,Jpinv) @ get_dq2(q[0,:],joint_limits_list)
+
         if ( np.linalg.norm(dq) > alpha):
             dq = alpha * dq / np.linalg.norm(dq)
         q = q - dq
@@ -160,6 +179,7 @@ def main():
                     q[0,i] = joint_limits[ joint_names[i] ][0] + 2e-4
     
     ### YOUR CODE HERE ###
+    print ( "Middle Joint vals= " , np.round( np.mean(joint_limits_list,axis=1),3) )
     print ( "Configuration for " , test_idx , " is: " , np.round(q,3) )
 
     wait_if_gui()
