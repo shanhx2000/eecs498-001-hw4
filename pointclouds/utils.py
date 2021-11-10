@@ -114,7 +114,9 @@ def draw_plane(fig, normal, pt, color=(0.1, 0.2, 0.5, 0.3), length=[-1, 1], widt
 
     """
     # Calculate d in ax + by + cz + d = 0
-    d = -pt.T * normal
+    print ( "Debug:", pt.shape)
+    # d = -pt.T * normal
+    d = -pt.T @ normal
 
     # Calculate points on the surface
     x = 0
@@ -123,6 +125,7 @@ def draw_plane(fig, normal, pt, color=(0.1, 0.2, 0.5, 0.3), length=[-1, 1], widt
     if normal[2, 0] != 0:
         x, y = numpy.meshgrid(numpy.linspace(length[0], length[1], 10),
                               numpy.linspace(width[0], width[1], 10))
+        print ("Debug:" , d.shape , x.shape , y.shape )
         z = (-d - normal[0, 0] * x - normal[1, 0] * y) / normal[2, 0]
     elif normal[1, 0] != 0:
         x, z = numpy.meshgrid(numpy.linspace(length[0], length[1], 10),
