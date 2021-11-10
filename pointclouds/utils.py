@@ -77,6 +77,7 @@ def view_pc(pcs, fig=None, color='b', marker='o'):
         x = []
         y = []
         z = []
+        print ( "pc=", len(pc) , " pt=", pc[0] )
         for pt in pc:
             x.append(pt[0, 0])
             y.append(pt[1, 0])
@@ -114,7 +115,7 @@ def draw_plane(fig, normal, pt, color=(0.1, 0.2, 0.5, 0.3), length=[-1, 1], widt
 
     """
     # Calculate d in ax + by + cz + d = 0
-    print ( "Debug:", pt.shape)
+    # print ( "Debug:", pt.shape)
     # d = -pt.T * normal
     d = -pt.T @ normal
 
@@ -125,7 +126,7 @@ def draw_plane(fig, normal, pt, color=(0.1, 0.2, 0.5, 0.3), length=[-1, 1], widt
     if normal[2, 0] != 0:
         x, y = numpy.meshgrid(numpy.linspace(length[0], length[1], 10),
                               numpy.linspace(width[0], width[1], 10))
-        print ("Debug:" , d.shape , x.shape , y.shape )
+        # print ("Debug:" , d.shape , x.shape , y.shape )
         z = (-d - normal[0, 0] * x - normal[1, 0] * y) / normal[2, 0]
     elif normal[1, 0] != 0:
         x, z = numpy.meshgrid(numpy.linspace(length[0], length[1], 10),
