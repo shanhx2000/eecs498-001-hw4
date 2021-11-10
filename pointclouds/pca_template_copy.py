@@ -29,7 +29,7 @@ def main():
     #Show the resulting point cloud
     pc_a = utils.convert_matrix_to_pc(X_new)
     fig = utils.view_pc([pc_a] , fig, color='r')
-    # plt.savefig( "IMPL2_PCA_a.png" ) 
+    plt.savefig( "IMPL2_PCA_a.png" ) 
 
 
     #Rotate the points to align with the XY plane AND eliminate the noise
@@ -44,13 +44,13 @@ def main():
         else:
             idx_keep.append(i)
     # Vs = Vh[:,idx_keep]
-    Vs = Vh.T
+    Vs = Vh
     Vs[:,idx_to_remove] = np.zeros_like(Vs[:,idx_to_remove])
     print ( "Vs.T", np.round(Vs.T,3) )
     X_b = Vs.T @ X
     pc_b = utils.convert_matrix_to_pc( X_b )
     fig1 = utils.view_pc([pc_b], fig1, color='g')
-    # plt.savefig( "IMPL2_PCA_b.png" )
+    plt.savefig( "IMPL2_PCA_b.png" )
 
     # Show the resulting point cloud
 
@@ -61,7 +61,7 @@ def main():
     print ( miu.shape )
     print ( normalU )
     fig2 = utils.draw_plane(fig2,normalU,miu, color=(0,1,0,0.3))
-    # plt.savefig( "IMPL2_PCA_c.png" )
+    plt.savefig( "IMPL2_PCA_c.png" )
     plt.show()
     #input("Press enter to end:")
 

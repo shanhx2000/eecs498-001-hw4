@@ -17,6 +17,7 @@ def GetTranform( Cp, Cq ):
     Y = Cq - q
     S = X @ Y.T
     u,sig,v = np.linalg.svd(S)
+    v = v.T
     tmp = np.eye(3)
     tmp[2,2] = np.linalg.det(v@u.T)
     R = v@tmp@u.T
@@ -36,22 +37,25 @@ def main():
     print ( P.shape )
     doneFlag = False
     bestCost = 99999999
-    eps = 1e-2 # 1e-2
+    eps = 1e-3 # 1e-2
     itr = 0
     error_list = []
-    while ( not doneFlag and itr < 10 ):
+    while ( not doneFlag and itr < 100 ):
         Cp = []
         Cq = []
         for i in range(P.shape[1]):
             p = np.array(P[:,i]).reshape( (3,1) )
-            q_idx = -1
-            q_s = 999
-            for j in range(Q.shape[1]):
-                tmp = np.linalg.norm(Q[:,j]-P[:,i])
-                if ( tmp < q_s ):
-                    q_s = tmp
-                    q_idx = j
-            # q_idx = np.argmin( np.linalg.norm(Q-p,axis=0) )
+            # q_idx = -1
+            # q_s = 999
+            # for j in range(Q.shape[1]):
+            #     tmp = np.linalg.norm(Q[:,j]-P[:,i])
+            #     if ( tmp < q_s ):
+            #         q_s = tmp
+            #         q_idx = j
+            q_idx = np.argmin( np.linalg.norm(Q-p,axis=0) )
+            # print ( q_idx )
+            # print ( np.argmin( np.linalg.norm(Q-p,axis=0) ) )
+            # assert ( q_idx == np.argmin( np.linalg.norm(Q-p,axis=0) ))
             q = np.array(Q[:,q_idx]).reshape( (3,1) )
             Cp.append( p )
             Cq.append( q )
@@ -63,7 +67,11 @@ def main():
         if ( newCost < bestCost ):
             bestCost = newCost
             print ( itr , " : ", bestCost )
-        if ( newCost  < eps ):
+        if ( newCost  < eps):
+            doneFlag = True
+        
+        if ( itr > 6 and error_list[-5] - newCost < eps):
+            print ( error_list[-5] - newCost )
             doneFlag = True
         P = R@Cp+t
         itr = itr + 1
